@@ -1,0 +1,88 @@
+{% extends 'base.html' %} {% block content %}
+<div id="container" class="app-container" style="display: none;">
+  <nav class="navbar navbar-default navbar-pf" role="navigation">
+    <div class="navbar-header"><button class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse-21"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button><a class="navbar-brand"
+        href="#"><img src="images/header-logo.png" alt="Identity Management"></a></div>
+    <div class="collapse navbar-collapse navbar-collapse-21">
+    </div>
+  </nav>
+  <div class="content"></div>
+  <div class="widget global-activity-indicator slider">
+    <div class="activity-row">
+      <div class="activity-text"><i class="fa fa-spinner fa-spin"></i> Working</div>
+    </div>
+  </div>
+</div>
+<div id="simple-container" class="app-container" style="">
+  <div class="content">
+    <div class="facet active-facet" name="login" data-name="login">
+      <div class="widget global-activity-indicator slider closed"></div>
+      <div class="login-pf">
+        <div class="login-pf-body"><span id="badge"><img src="/ipa/ui/images/login-screen-logo.png" alt=""></span>
+          <div class="container">
+            <div class="row">
+              <div class="col-sm-12">
+                <div id="brand"><img src="/ipa/ui/images/product-name.png" height="80px"></div>
+              </div>
+              <div class="col-sm-7 col-md-7 col-lg-6 login">
+                {% if msg %}
+                {% if error %}
+                <div class="form-group">
+                  <div class="col-sm-3 col-md-3 control-label"><label name="validation" class=""></label></div>
+                  <div class="col-sm-9 col-md-9 controls">
+                    <div name="validation" class="widget validation-summary" style="">
+                      <div>
+                        <div data-name="sync" class="fade in alert alert-danger"><span class="fa fa-exclamation-circle"></span> {{msg}}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {% else %}
+                <div class="form-group">
+                  <div class="col-sm-3 col-md-3 control-label"><label name="validation" class=""></label></div>
+                  <div class="col-sm-9 col-md-9 controls">
+                    <div name="validation" class="widget validation-summary" style="">
+                      <div>
+                        <div data-name="sync" class="fade in alert alert-success"><span class="fa fa-exclamation-circle"></span> {{msg}}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {% endif %}
+                {% endif %}
+                <form id="reset-form" method="post" action="/reset/gettoken/">
+                  <div class="form-horizontal">
+                    <div class="form-group required">
+                      <div class="col-sm-3 col-md-3 control-label"><label name="uid" class="" for="uid">Username</label></div>
+                      <div class="col-sm-9 col-md-9 controls">
+                        <div name="uid" class="widget text-widget valid">
+                          <p name="uid" class="form-control-static" style="display: none;"></p>
+                          {% csrf_token %}
+                          <div><input type="text" name="uid" id="uid" class="form-control" title="" placeholder="Username" autocomplete="off" style="background-image: url(&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAASCAYAAABSO15qAAAAAXNSR0IArs4c6QAAAXFJREFUOBGVVDGKwkAUfZHFaBBS2riQSrC18QJpAvbeYAVbD6DxFm4TELyA1R7BKmUgjRa7pAwELKKF2XljEuMSN/HDZOb//96b+X+GKLZtW0mSrMV4Rw1TFOVbwD6Wy+UX4Y1XyCSkG31yTaNArZ1v8Nu3yGkUE1VrTdPQ7/cfYC8JGIYB0zTLBVqtVp5QVRWiWblfzOXBdPHGeTweYzgcYrvdIgxDzGYzBEEAx3Eecn/J9F8qoUxAWSwWCRM8ZhzHEsMSzudzGT6PiRJ/hDPNT5CRiagiEyOusiemtewBA//ZZDLBYDDIIavVCtfrVYrUEmi324iiCPv9XoqQnFkjfduZXzpToNlsykdUJBNMgWmViO/78DwPuq7DsizwQWV2fy1ZJJ2z26Hb6XRwOp0wGo2kwG63g+u6ElmrB/P5XApQ6HK54HA4pNsATwV4z+lVYbPZoNvtys6zHDaURsxTAZFnb/ij6R2PR3AUjWRifgHmko6KAvVfRAAAAABJRU5ErkJggg==&quot;); background-repeat: no-repeat; background-attachment: scroll; background-size: 16px 18px; background-position: 98% 50%;">
+                            <div class="input-group-btn"></div>
+                          </div> <span name="error_link" class="help-block" style="display:none"></span></div>
+                      </div>
+                    </div>
+                    <div class="form-group" style="display:none"></div>
+                  </div>
+                </form>
+                <div class="row">
+                  <div class="col-sm-12 col-md-offset-3 col-md-9 submit">
+                    <input type="button" onclick="location.href='/ipa/ui';" class="btn btn-default btn-danger btn-lg" value="Cancel" />
+                    <button name="reset" title="Reset Password" form="reset-form" class="btn btn-default btn-primary btn-lg" type="submit">Reset Password</button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-5 col-md-5 col-lg-6 details">
+                <p><i class="fa fa-info-circle"></i> To reset passwrod enter <strong>username</strong> in the corresponding fields, then click Reset.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="notification" class="">
+    <div class="content"></div>
+  </div>
+  {% endblock %}

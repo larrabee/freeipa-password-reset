@@ -1,0 +1,16 @@
+[Unit]
+Description=FreeIPA Password Reset Service
+After=network.target remote-fs.target
+
+[Service]
+Type=simple
+User=ldap-passwd-reset
+Group=ldap-passwd-reset
+WorkingDirectory=/opt/data/IPAPasswordReset/PasswordReset/
+ExecStart=/opt/data/IPAPasswordReset/virtualenv/bin/python /opt/data/IPAPasswordReset/PasswordReset/manage.py runserver
+Restart=always
+RestartSec=20
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
