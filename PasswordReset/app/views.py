@@ -97,16 +97,17 @@ class PasswdManager():
     
     def __kerberos_has_ticket(self):
         process = subprocess.Popen(['/usr/bin/klist', '-s'], stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+        process.communicate()
         if process.returncode == 0:
             return True
         else:
             return False
     
     def __kerberos_init(self):
-        process = subprocess.Popen(['/usr/bin/kinit', str(settings.LDAP_USER)], stderr=subprocess.STDOUT, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
-        process.stdin.write('{0}\n'.format(settings.LDAP_PASSWORD))
+        process = subprocess.Popen(['/usr/bin/kinit', '-k', '-t', str(settings.KEYTAB_PATH), str(settings.LDAP_USER), ], stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+        process.communicate()
         if process.returncode != 0:
-            raise  KerberosInitFailed("Cannot retrieve kerberos tiket.")    
+            raise  KerberosInitFailed("Cannot retrieve kerberos tiket.")
     
     def __set_password(self, uid, password):
         try:

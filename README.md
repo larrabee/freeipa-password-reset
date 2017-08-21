@@ -32,6 +32,7 @@ ipa role-add-privilege "Self Password Reset" --privileges="Modify Users and Rese
 ```
 
 
+
 ## Install App
 1. Clone repository to directory. (default is `/opt/data/IPAPasswordReset/`, but you can change it.):
 ```
@@ -44,30 +45,34 @@ virtualenv2 ./virtualenv
 . ./virtualenv/bin/activate
 pip install -r requirements.txt
 ```
-3. chown files (change username if you use not default):
+3. Get keytab for "ldap-passwd-reset" user (you must run it from user with admin privileges):
+```
+ipa-getkeytab -p ldap-passwd-reset -k /opt/data/IPAPasswordReset/ldap-passwd-reset.keytab
+```
+4. chown files (change username if you use not default):
 ```
 chown -R ldap-passwd-reset:ldap-passwd-reset /opt/data/IPAPasswordReset
 ```
-4. Install Apache config and reload httpd:
+5. Install Apache config and reload httpd:
 ```
 cp service/ipa-password-reset.conf /etc/httpd/conf.d/ipa-password-reset.conf
 systemctl reload httpd
 ```
-5. Install redis (you can skip this step and use external redis):
+6. Install redis (you can skip this step and use external redis):
 ```
 yum install -y redis
 systemctl enable --now redis
 ```
-6. Change vars in `PasswordReset/PasswordReset/settings.py`. You need change following keys:
+7. Change vars in `PasswordReset/PasswordReset/settings.py`. You need change following keys:
 ```
 SECRET_KEY = "Your CSRF protection key. It must be long random string"
 AWS_KEY = "Your AWS SNS key"
 AWS_SECRET = "Your AWS SNS secret"
 AWS_REGION = "Your AWS region"
 LDAP_USER = "LDAP user. Default is ldap-passwd-reset"
-LDAP_PASSWORD = "LDAP user password."
+KEYTAB_PATH = "Path to ldap-passwd-reset keytab. Default is ../ldap-passwd-reset.keytab"
 ```
-10. Install systemd unit and start the app:
+8. Install systemd unit and start the app:
 ```
 cp service/ldap-passwd-reset.service /etc/systemd/system/ldap-passwd-reset.service
 systemctl daemon-reload

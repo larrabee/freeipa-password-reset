@@ -128,7 +128,7 @@ REDIS_PORT = 6379
 REDIS_DB = 0
 
 LDAP_USER = "ldap-passwd-reset"
-LDAP_PASSWORD = "CHANGE_ME_PLEASE"
+KEYTAB_PATH = "../ldap-passwd-reset.keytab"
 
 TOKEN_LEN = 6
 TOKEN_LIFETIME = 3600
