@@ -1,4 +1,4 @@
-# FreeIPA self-service password reset service
+# FreeIPA self-service password reset
 
 ## Features
 1. Users can reset their own passwords with token that is sent to the user's mobile phone
@@ -6,7 +6,7 @@
 3. The service is dedicated. It does not change the scheme or system files of FreeIPA. No problems with upgrade of FreeIPA
 4. The password reset page stylized as FreeIPA pages
 5. SMS with tokens is sent through the Amazon SNS service. 
-6. Tested with CentOS 7, python 2.7 and FreeIPA 4.4
+6. Tested with CentOS 7, python 2.7 and FreeIPA 4.4/4.5
 7. This instruction assumes that the service will be installed on the FreeIPA server, but you can install it on another server
 8. I recommend that you protect the service using a firewall and allow access only through the internal network
 9. This app is very small. You can easily audit the code.
