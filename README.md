@@ -88,3 +88,6 @@ systemctl enable --now ldap-passwd-reset.service
 ## Screenshots
 ![Main Page](/service/main.png?raw=true "Main Page")
 ![Confirmation Page](/service/reset.png?raw=true "Confirmation Page")
+
+## License
+GPLv3
