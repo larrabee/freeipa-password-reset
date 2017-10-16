@@ -29,6 +29,7 @@ ipa -n user-add "ldap-passwd-reset" --first="Service" --last="Password reset" --
 ipa role-add "Self Password Reset"
 ipa role-add-member "Self Password Reset" --users="ldap-passwd-reset"
 ipa role-add-privilege "Self Password Reset" --privileges="Modify Users and Reset passwords"
+ipa role-add-privilege "Self Password Reset" --privileges="Password Policy Readers"
 ```
 
 
