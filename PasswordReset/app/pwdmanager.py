@@ -53,7 +53,7 @@ class PasswdManager():
     
     def __set_password(self, uid, password):
         try:
-            password_exp_days = api.Command.pwpolicy_show()['result']['krbmaxpwdlife'][0]
+            password_exp_days = int(api.Command.pwpolicy_show()['result']['krbmaxpwdlife'][0])
             date = (datetime.now() + timedelta(days=password_exp_days)).strftime("%Y%m%d%H%M%SZ")
             api.Command.user_mod(uid=unicode(uid), userpassword=unicode(password))
             api.Command.user_mod(uid=unicode(uid), setattr=unicode("krbPasswordExpiration={0}".format(date)))
