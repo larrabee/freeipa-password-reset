@@ -5,10 +5,8 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.views.generic import View
 from django.template import loader
-from django.utils.decorators import method_decorator
 from django.utils.safestring import mark_safe
 
-from . import pwdmanager
 from pwdmanager import *
 
 def index(request):

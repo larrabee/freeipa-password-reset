@@ -17,7 +17,7 @@ class ValidateUserFailed(Exception):
 
 class InvalidToken(Exception):
     pass
-    
+
 class AmazonSNSFailed(Exception):
     pass
 
@@ -37,7 +37,8 @@ class PasswdManager():
         api.Backend.rpcclient.connect()
         self.redis = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=settings.REDIS_DB)
     
-    def __kerberos_has_ticket(self):
+    @staticmethod
+    def __kerberos_has_ticket():
         process = subprocess.Popen(['/usr/bin/klist', '-s'], stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
         process.communicate()
         if process.returncode == 0:
@@ -45,7 +46,8 @@ class PasswdManager():
         else:
             return False
     
-    def __kerberos_init(self):
+    @staticmethod
+    def __kerberos_init():
         process = subprocess.Popen(['/usr/bin/kinit', '-k', '-t', str(settings.KEYTAB_PATH), str(settings.LDAP_USER), ], stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
         process.communicate()
         if process.returncode != 0:
