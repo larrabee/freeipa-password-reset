@@ -33,7 +33,6 @@ ipa role-add-privilege "Self Password Reset" --privileges="Password Policy Reade
 ```
 
 
-
 ## Install App
 1. Clone repository to directory. (default is `/opt/data/IPAPasswordReset/`, but you can change it.):
 ```
