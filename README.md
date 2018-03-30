@@ -7,7 +7,7 @@
 4. The password reset page stylized as FreeIPA pages
 5. SMS with tokens is sent through the Amazon SNS service. 
 6. Tested with CentOS 7, python 2.7 and FreeIPA 4.4/4.5
-7. This instruction assumes that the service will be installed on the FreeIPA server, but you can install it on another server
+7. This instruction assumes that the service will be installed on the FreeIPA server.
 8. I recommend that you protect the service using a firewall and allow access only through the internal network
 9. This app is very small. You can easily audit the code.
 
