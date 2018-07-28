@@ -63,7 +63,7 @@ class PasswdManager():
             raise SetPasswordFailed("Cannot update your password. {0}".format(e))
         
     def __validate_user(self, uid):
-        phone_regexp = re.compile('^\+([\d]{11,11})$')
+        phone_regexp = re.compile('^\+([\d]{9,15})$')
         try:
             user = api.Command.user_show(uid=unicode(uid))
         except ipaerrors.NotFound:
