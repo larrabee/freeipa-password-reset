@@ -43,7 +43,7 @@ git clone https://github.com/larrabee/freeipa-password-reset.git /opt/data/IPAPa
 2. Create virtual env:
 ```
 cd /opt/data/IPAPasswordReset/
-virtualenv2 ./virtualenv
+virtualenv2 --system-site-packages ./virtualenv
 . ./virtualenv/bin/activate
 pip install -r requirements.txt
 ```
