@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+import app.providers
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -19,9 +20,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'VERY LONG RANDOM STRING'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -123,6 +121,9 @@ STATIC_URL = '/static/'
 
 ### CUSTOM settings
 
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = 'VERY LONG RANDOM STRING'
+
 REDIS_HOST = 'localhost'
 REDIS_PORT = 6379
 REDIS_DB = 0
@@ -137,9 +138,35 @@ LIMIT_MAX_VALIDATE_RETRY = 10
 LIMIT_MAX_SEND = 3
 LIMIT_TIME = 86400
 
-AWS_KEY = "AWS key"
-AWS_SECRET = "AWS secret"
-AWS_REGION = "eu-west-1"
-AWS_SENDER_ID = "LDAP"
-# In template {0} will replaced with Username (uid)
-AWS_MESSAGE_TEMPLATE = "Your reset passwor token: {0}\nDo not tell anyone this code"
+
+PROVIDERS = {
+    "aws-sns-1": {   
+        "class": app.providers.AmazonSNS,
+        "enabled": False,
+        "display_name": "SMS",
+        "options": {
+            # In template {0} will replaced with token
+            "msg_template": "Your reset password token: {0} \nDo not tell anyone this code.", 
+            "aws_key": "AWS key", 
+            "aws_secret": "AWS secret",
+            "aws_region": "eu-west-1",
+            "sender_id": "LDAP",
+        },
+    },
+    "email-1": {
+        "class": app.providers.Email,
+        "enabled": False,
+        "display_name": "Email",
+        "options": {
+            # In template {0} will replaced with token
+            "msg_template": "Your reset password token: {0} \nDo not tell anyone this code.",
+            "msg_subject": "Your LDAP password reset code",
+            "smtp_user": "", 
+            "smtp_pass": "",
+            "smtp_server_addr": "",
+            "smtp_server_port": 25,
+            "smtp_server_tls": True,
+        },
+    },
+}
+

@@ -2,7 +2,6 @@
 from django.conf import settings
 
 from ipalib import api, errors as ipaerrors
-import boto3
 import redis
 import re
 import subprocess
@@ -15,10 +14,13 @@ class TooMuchRetries(Exception):
 class ValidateUserFailed(Exception):
     pass
 
+class BackendError(Exception):
+    pass
+
 class InvalidToken(Exception):
     pass
 
-class AmazonSNSFailed(Exception):
+class InvalidProvider(Exception):
     pass
 
 class SetPasswordFailed(Exception):
@@ -61,24 +63,17 @@ class PasswdManager():
             api.Command.user_mod(uid=unicode(uid), setattr=unicode("krbPasswordExpiration={0}".format(date)))
         except Exception as e:
             raise SetPasswordFailed("Cannot update your password. {0}".format(e))
-        
-    def __validate_user(self, uid):
-        phone_regexp = re.compile('^\+([\d]{9,15})$')
+                    
+    def __get_user(self, uid):
         try:
             user = api.Command.user_show(uid=unicode(uid))
         except ipaerrors.NotFound:
             raise ValidateUserFailed("User not found")
+        except Exception:
+            raise BackendError("Cannot fetch user information")
         if user['result']['nsaccountlock'] is True:
             raise ValidateUserFailed("Account is deactivated")
-        if len(user['result']['telephonenumber']) == 0:
-            raise ValidateUserFailed("No phone number")
-        if phone_regexp.match(user['result']['telephonenumber'][0]) is None:
-            raise ValidateUserFailed("Phone number in wrong format")
-        
-                    
-    def __get_user_phone(self, uid):
-        user = api.Command.user_show(uid=unicode(uid))
-        return user['result']['telephonenumber'][0]
+        return user
     
     def __gen_secure_token(self, length):
         token = int(''.join([ str(SystemRandom().randrange(9)) for i in range(length) ]))
@@ -92,7 +87,6 @@ class PasswdManager():
         token = self.__gen_secure_token(settings.TOKEN_LEN)
         self.redis.set("token::{0}".format(uid), token)
         self.redis.expire("token::{0}".format(uid), settings.TOKEN_LIFETIME)
-            
         return token
     
     def __validate_token(self, uid, token):
@@ -108,24 +102,33 @@ class PasswdManager():
     
     def __invalidate_token(self, uid):
         self.redis.delete("token::{0}".format(uid))
-    
-    def __send_token(self, uid, token):
-        phone = self.__get_user_phone(uid)
-        try:
-            sns = boto3.client('sns', aws_access_key_id=settings.AWS_KEY, aws_secret_access_key=settings.AWS_SECRET, region_name=settings.AWS_REGION)
-            sns.publish(PhoneNumber=phone, Message=settings.AWS_MESSAGE_TEMPLATE.format(token), MessageAttributes={'AWS.SNS.SMS.SenderID': {'DataType': 'String', 'StringValue': settings.AWS_SENDER_ID}})
-        except botocore.errorfactory:
-            self.__invalidate_token(uid)
-            raise AmazonSNSFailed("Cannot send SMS via Amazon SNS")
 
-    def first_phase(self, uid):
-        self.__validate_user(uid)
+    def first_phase(self, uid, provider_id):
+        user = self.__get_user(uid)
         token = self.__set_token(uid)
-        self.__send_token(uid, token)
+
+        if (provider_id not in settings.PROVIDERS):
+            raise InvalidProvider("Specified provider does not exist")
+        elif ("enabled" not in settings.PROVIDERS[provider_id]) or (settings.PROVIDERS[provider_id]['enabled'] is False):
+            raise InvalidProvider("Specified provider disabled")
+        else:
+            provider = settings.PROVIDERS[provider_id]['class'](settings.PROVIDERS[provider_id]['options'])
+            
+        try:
+            provider.send_token(user, token)
+        except Exception as e:
+            self.__invalidate_token(uid)
+            raise e
         
     def second_phase(self, uid, token, new_password):
         self.__validate_token(uid, token)
         self.__set_password(uid, new_password)
         self.__invalidate_token(uid)
-        
-        
+
+
+def get_providers():
+    providers = []
+    for key, value in settings.PROVIDERS.iteritems():
+        if ('enabled' in value) and (value['enabled']):
+            providers.append({"id": key, "display_name": value['display_name']})
+    return providers

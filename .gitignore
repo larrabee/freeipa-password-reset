@@ -1,2 +1,4 @@
 virtualenv/
+venv/
 *.pyc
+PasswordReset/PasswordReset/settings.py

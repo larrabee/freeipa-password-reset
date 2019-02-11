@@ -1,15 +1,17 @@
 # FreeIPA self-service password reset
 
 ## Features
-1. Users can reset their own passwords with token that is sent to the user's mobile phone
-2. The service has protection against brute force attacks
-3. The service is dedicated. It does not change the scheme or system files of FreeIPA. No problems with upgrade of FreeIPA
-4. The password reset page stylized as FreeIPA pages
-5. SMS with tokens is sent through the Amazon SNS service. 
-6. Tested with CentOS 7, python 2.7 and FreeIPA 4.4/4.5
-7. This instruction assumes that the service will be installed on the FreeIPA server.
-8. I recommend that you protect the service using a firewall and allow access only through the internal network
-9. This app is very small. You can easily audit the code.
+1. Users can reset their own passwords with token that is sent to the user's mobile phones
+2. Users can reset their own passwords with token that is sent to the user's emails
+3. The service has protection against brute force attacks
+4. The service is dedicated. It does not change the scheme or system files of FreeIPA. No problems with upgrade of FreeIPA
+5. The password reset page stylized as FreeIPA pages
+6. SMS with tokens is sent through the Amazon SNS service. 
+7. Tested with CentOS 7, python 2.7 and FreeIPA 4.4/4.5
+8. This instruction assumes that the service will be installed on the FreeIPA server.
+9. I recommend that you protect the service using a firewall and allow access only through the internal network
+10. This app is very small. You can easily audit the code.
+11. You can easely write your own 2FA providers.
 
 
 ## Instal steps
@@ -63,14 +65,13 @@ systemctl reload httpd
 yum install -y redis
 systemctl enable --now redis
 ```
-7. Change vars in `PasswordReset/PasswordReset/settings.py`. You need change following keys:
+7. Copy file `PasswordReset/PasswordReset/settings.py.example` to `PasswordReset/PasswordReset/settings.py` and modify it. You should change following vars:
 ```
 SECRET_KEY = "Your CSRF protection key. It must be long random string"
-AWS_KEY = "Your AWS SNS key"
-AWS_SECRET = "Your AWS SNS secret"
-AWS_REGION = "Your AWS region"
 LDAP_USER = "LDAP user. Default is ldap-passwd-reset"
 KEYTAB_PATH = "Path to ldap-passwd-reset keytab. Default is ../ldap-passwd-reset.keytab"
+PROVIDERS = {...} # Configuration of 2FA providers like Amazon SNS (SMS) or Email provider. 
+
 ```
 8. Install systemd unit and start the app:
 ```

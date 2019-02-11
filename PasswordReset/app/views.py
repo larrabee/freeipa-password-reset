@@ -8,23 +8,28 @@ from django.template import loader
 from django.utils.safestring import mark_safe
 
 from pwdmanager import *
+from django.conf import settings
 
 def index(request):
     template = loader.get_template('index.html')
-    context = {}
+
+    context = {
+        'providers': get_providers(),
+        }
     return HttpResponse(template.render(context, request))
 
 class GetToken(View):
     def post(self, request, *args, **kwargs):
         try:
-            PasswdManager().first_phase(request.POST['uid'])
+            PasswdManager().first_phase(uid=request.POST['uid'], provider_id=request.POST['provider'])
         except Exception as e:
             template = loader.get_template('index.html')
             context = {
                 'msg': e,
-                'error': True
+                'error': True,
+                'providers': get_providers(),
             }
-            return HttpResponse(template.render(context, request))
+            return HttpResponse(template.render(context, request), status=500)
         else:
             return redirect("/reset/setpassword/?uid={0}".format(request.POST['uid']))
 
@@ -33,7 +38,7 @@ class SetPassword(View):
     def get(self, request, *args, **kwargs):
         template = loader.get_template('setpassword.html')
         context = {
-            'uid': request.GET['uid']
+            'uid': request.GET['uid'],
         }
         return HttpResponse(template.render(context, request))
     
@@ -45,15 +50,14 @@ class SetPassword(View):
             context = {
                 'msg': e,
                 'error': True,
-                'uid': request.POST['uid']
-                
+                'uid': request.POST['uid'],
             }
+            return HttpResponse(template.render(context, request), status=500)
         else:
             template = loader.get_template('setpassword.html')
             context = {
                 'msg': mark_safe('Password successfully changed. <a href="/ipa/ui/">You can login here.</a>'),
                 'error': False,
-                'uid': request.POST['uid']
-                
+                'uid': request.POST['uid'],
             }
-        return HttpResponse(template.render(context, request))
+            return HttpResponse(template.render(context, request))
