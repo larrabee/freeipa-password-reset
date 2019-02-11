@@ -2,3 +2,4 @@ virtualenv/
 venv/
 *.pyc
 PasswordReset/PasswordReset/settings.py
+ldap-passwd-reset.keytab
