@@ -91,7 +91,8 @@ class Email():
                 s.ehlo()
                 s.starttls(tuple())
                 s.ehlo()
-            s.login(self.smtp_user, self.smtp_pass)
+            if (self.smtp_user is not None) and (self.smtp_pass is not None:
+                s.login(self.smtp_user, self.smtp_pass)
             s.sendmail(msg['From'], recipients, msg.as_string())
             s.quit()
         except Exception:
