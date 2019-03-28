@@ -24,7 +24,7 @@
 ## Configure FreeIPA
 1. Create service user (example: `ldap-passwd-reset`)
 ```
-ipa -n user-add "ldap-passwd-reset" --first="Service" --last="Password reset" --password "CHANGE_ME_PLEASE"
+ipa -n user-add "ldap-passwd-reset" --first="Service" --last="Password reset" --password-expiration="2050-01-01Z" --password "CHANGE_ME_PLEASE"
 ```
 2. Create new role with permission to change passwords
 ```
@@ -32,6 +32,12 @@ ipa role-add "Self Password Reset"
 ipa role-add-member "Self Password Reset" --users="ldap-passwd-reset"
 ipa role-add-privilege "Self Password Reset" --privileges="Modify Users and Reset passwords"
 ipa role-add-privilege "Self Password Reset" --privileges="Password Policy Readers"
+```
+3. Create user home dir
+```
+mkdir $(ipa -n user-show "ldap-passwd-reset" --raw |grep 'homedirectory' |awk -F':' '{print $2}')
+chown ldap-passwd-reset.ldap-passwd-reset $(ipa -n user-show "ldap-passwd-reset" --raw |grep 'homedirectory' |awk -F':' '{print $2}')
+chmod 750 $(ipa -n user-show "ldap-passwd-reset" --raw |grep 'homedirectory' |awk -F':' '{print $2}')
 ```
 
 
