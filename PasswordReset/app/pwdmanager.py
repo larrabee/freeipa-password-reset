@@ -37,7 +37,7 @@ class PasswdManager():
             api.bootstrap_with_global_options(context='api')
             api.finalize()
         api.Backend.rpcclient.connect()
-        self.redis = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=settings.REDIS_DB)
+        self.redis = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=settings.REDIS_DB, password=settings.REDIS_PASSWORD)
     
     @staticmethod
     def __kerberos_has_ticket():

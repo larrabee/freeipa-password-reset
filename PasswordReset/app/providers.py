@@ -61,6 +61,10 @@ class Email():
         self.smtp_server_addr = options['smtp_server_addr']
         self.smtp_server_port = options['smtp_server_port']
         self.smtp_server_tls = options['smtp_server_tls']
+        if ('smtp_from' in options) and (options['smtp_from'] is not None):
+            self.smtp_from = options['smtp_from']
+        else:
+            self.smtp_from = self.smtp_user
 
     def __filter_emails(self, emails):
         if len(emails) == 0:
@@ -84,7 +88,7 @@ class Email():
         try:
             msg = MIMEText(self.msg_template.format(token))
             msg['Subject'] = self.msg_subject
-            msg['From'] = self.smtp_user
+            msg['From'] = self.smtp_from
             msg['To'] = ", ".join(recipients)
             s = smtplib.SMTP("{0}:{1}".format(self.smtp_server_addr, self.smtp_server_port))
             if self.smtp_server_tls:

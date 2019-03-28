@@ -36,36 +36,40 @@ ipa role-add-privilege "Self Password Reset" --privileges="Password Policy Reade
 
 
 ## Install App
-1. Clone repository to directory. (default is `/opt/data/IPAPasswordReset/`, but you can change it.):
+1. Install system dependencyes with yum:
+```
+yum install -y python-virtualenv python-pip python-ipaclient git
+```
+2. Clone repository to directory. (default is `/opt/data/IPAPasswordReset/`, but you can change it.):
 ```
 git clone https://github.com/larrabee/freeipa-password-reset.git /opt/data/IPAPasswordReset/
 ```
-2. Create virtual env:
+3. Create virtual env:
 ```
 cd /opt/data/IPAPasswordReset/
-virtualenv2 --system-site-packages ./virtualenv
+virtualenv --system-site-packages ./virtualenv
 . ./virtualenv/bin/activate
 pip install -r requirements.txt
 ```
-3. Get keytab for "ldap-passwd-reset" user (you must run it from user with admin privileges):
+4. Get keytab for "ldap-passwd-reset" user (you must run it from user with admin privileges):
 ```
 ipa-getkeytab -p ldap-passwd-reset -k /opt/data/IPAPasswordReset/ldap-passwd-reset.keytab
 ```
-4. chown files (change username if you use not default):
+5. chown files (change username if you use not default):
 ```
 chown -R ldap-passwd-reset:ldap-passwd-reset /opt/data/IPAPasswordReset
 ```
-5. Install Apache config and reload httpd:
+6. Install Apache config and reload httpd:
 ```
 cp service/ipa-password-reset.conf /etc/httpd/conf.d/ipa-password-reset.conf
 systemctl reload httpd
 ```
-6. Install redis (you can skip this step and use external redis):
+7. Install redis (you can skip this step and use external redis):
 ```
 yum install -y redis
 systemctl enable --now redis
 ```
-7. Copy file `PasswordReset/PasswordReset/settings.py.example` to `PasswordReset/PasswordReset/settings.py` and modify it. You should change following vars:
+8. Copy file `PasswordReset/PasswordReset/settings.py.example` to `PasswordReset/PasswordReset/settings.py` and modify it. You should change following vars:
 ```
 SECRET_KEY = "Your CSRF protection key. It must be long random string"
 LDAP_USER = "LDAP user. Default is ldap-passwd-reset"
@@ -73,7 +77,7 @@ KEYTAB_PATH = "Path to ldap-passwd-reset keytab. Default is ../ldap-passwd-reset
 PROVIDERS = {...} # Configuration of 2FA providers like Amazon SNS (SMS) or Email provider. 
 
 ```
-8. Install systemd unit and start the app:
+9. Install systemd unit and start the app:
 ```
 cp service/ldap-passwd-reset.service /etc/systemd/system/ldap-passwd-reset.service
 systemctl daemon-reload
