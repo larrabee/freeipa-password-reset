@@ -2,7 +2,7 @@ appdirs==1.4.3
 boto3==1.4.4
 botocore==1.5.71
 decorator==4.0.11
-django==1.11.22
+django==1.11.23
 dnspython==1.15.0
 docutils==0.13.1
 enum34==1.1.6
