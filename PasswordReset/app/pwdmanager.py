@@ -66,7 +66,7 @@ class PasswdManager():
                     
     def __get_user(self, uid):
         try:
-            user = api.Command.user_show(uid=unicode(uid))
+            user = api.Command.user_show(uid=unicode(uid), all=True)
         except ipaerrors.NotFound:
             raise ValidateUserFailed("User not found")
         except Exception:

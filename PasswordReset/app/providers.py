@@ -26,6 +26,10 @@ class AmazonSNS():
         self.aws_secret = options['aws_secret']
         self.aws_region = options['aws_region']
         self.sender_id = options['sender_id']
+        if 'ldap_attribute_name' in options:
+            self.ldap_attribute_name = options['ldap_attribute_name']
+        else:
+            self.ldap_attribute_name = 'telephonenumber'
 
     def __filter_phones(self, phones):
         phone_regexp = re.compile('^\+([\d]{9,15})$')
@@ -40,7 +44,7 @@ class AmazonSNS():
         return valid_phones
 
     def send_token(self, user, token):
-        phones = user['result']['telephonenumber']
+        phones = user['result'][self.ldap_attribute_name]
         phones = self.__filter_phones(phones)
         
         try:
