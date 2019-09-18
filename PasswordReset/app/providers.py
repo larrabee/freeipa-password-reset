@@ -1,6 +1,7 @@
 import boto3
 import re
 import smtplib
+import subprocess 
 from email.mime.text import MIMEText
 
 from django.core.exceptions import ValidationError
@@ -17,6 +18,12 @@ class EmailSendFailed(Exception):
     pass
 
 class EmailValidateFailed(Exception):
+    pass
+
+class SignalFailed(Exception):
+    pass
+
+class SignalValidateFailed(Exception):
     pass
 
 class AmazonSNS():
@@ -103,5 +110,40 @@ class Email():
                 s.login(self.smtp_user, self.smtp_pass)
             s.sendmail(msg['From'], recipients, msg.as_string())
             s.quit()
-        except Exception:
-            raise EmailSendFailed("Cannot send Email")
+        except Exception as e:
+            raise EmailSendFailed(e.message)
+
+
+class Signal():
+    def __init__(self, options):
+        self.msg_template = options['msg_template']
+        self.sender_number = options['sender_number']
+        if 'ldap_attribute_name' in options:
+            self.ldap_attribute_name = options['ldap_attribute_name']
+        else:
+            self.ldap_attribute_name = 'telephonenumber'
+
+    def __filter_phones(self, phones):
+        phone_regexp = re.compile('^\+([\d]{9,15})$')
+        valid_phones = []
+        if len(phones) == 0:
+            raise SignalValidateFailed("User does not have phone numbers")
+        for phone in phones:
+            if phone_regexp.match(phone) is not None:
+                valid_phones.append(phone)
+        if len(valid_phones) == 0:
+            raise SignalValidateFailed("User does not have valid phone numbers")
+        return valid_phones
+
+    def send_token(self, user, token):
+        phones = user['result'][self.ldap_attribute_name]
+        phones = self.__filter_phones(phones)
+        try:
+            for phone in phones:
+                proc = subprocess.Popen(["signal-cli", "-u", self.sender_number, "send", "-m", self.msg_template.format(token), phone.encode('utf-8')], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                output = proc.communicate()[0]
+                if proc.returncode != 0:
+                    raise SignalFailed(output)
+        except Exception as e:
+            raise SignalFailed(e.message)
+
