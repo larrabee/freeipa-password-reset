@@ -53,7 +53,7 @@ class PasswdManager():
         process = subprocess.Popen(['/usr/bin/kinit', '-k', '-t', str(settings.KEYTAB_PATH), str(settings.LDAP_USER), ], stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
         process.communicate()
         if process.returncode != 0:
-            raise  KerberosInitFailed("Cannot retrieve kerberos tiket.")
+            raise  KerberosInitFailed("Cannot retrieve kerberos ticket.")
     
     def __set_password(self, uid, password):
         try:
@@ -82,7 +82,7 @@ class PasswdManager():
         
     def __set_token(self, uid):
         if (self.redis.get("retry::send::{0}".format(uid)) is not None) and (int(self.redis.get("retry::send::{0}".format(uid))) >= settings.LIMIT_MAX_SEND):
-            raise TooMuchRetries("Too much retries. Try later.")
+            raise TooMuchRetries("Too many retries. Try later.")
         self.redis.incr("retry::send::{0}".format(uid))
         self.redis.expire("retry::send::{0}".format(uid), settings.LIMIT_TIME)
         token = self.__gen_secure_token(settings.TOKEN_LEN)
@@ -92,7 +92,7 @@ class PasswdManager():
     
     def __validate_token(self, uid, token):
         if (self.redis.get("retry::validate::{0}".format(uid)) is not None) and (int(self.redis.get("retry::validate::{0}".format(uid))) >= settings.LIMIT_MAX_VALIDATE_RETRY):
-            raise TooMuchRetries("Too much retries. Try later.")
+            raise TooMuchRetries("Too many retries. Try later.")
         self.redis.incr("retry::validate::{0}".format(uid))
         self.redis.expire("retry::validate::{0}".format(uid), settings.TOKEN_LIFETIME)
         server_token = self.redis.get("token::{0}".format(uid))

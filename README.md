@@ -11,10 +11,10 @@
 8. This instruction assumes that the service will be installed on the FreeIPA server.
 9. I recommend that you protect the service using a firewall and allow access only through the internal network
 10. This app is very small. You can easily audit the code.
-11. You can easely write your own 2FA providers.
+11. You can easily write your own 2FA providers.
 
 
-## Instal steps
+## Install steps
 
 1. Configure FreeIPA
 2. Install & Configure App
@@ -42,7 +42,7 @@ chmod 750 $(ipa -n user-show "ldap-passwd-reset" --raw |grep 'homedirectory' |aw
 
 
 ## Install App
-1. Install system dependencyes with yum:
+1. Install system dependencies with yum:
 ```
 yum install -y python-virtualenv python-pip python-ipaclient git
 ```
@@ -91,7 +91,7 @@ systemctl enable --now ldap-passwd-reset.service
 ```
 
 ## Enjoy!
-* Open [https:/ipa.example.com/reset/](https://ipa.example.com/reset/) (replace ipa.example.com with your FreeIPA hosname)
+* Open [https:/ipa.example.com/reset/](https://ipa.example.com/reset/) (replace ipa.example.com with your FreeIPA hostname)
 * Enter the user uid and click 'Reset Password'
 * On next page enter the security code from SMS and enter new password twice and click 'Reset'
 * Try to login to FreeIPA with new password
