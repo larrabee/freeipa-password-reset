@@ -62,7 +62,7 @@ class PasswdManager():
             api.Command.user_mod(uid=unicode(uid), userpassword=unicode(password))
             api.Command.user_mod(uid=unicode(uid), setattr=unicode("krbPasswordExpiration={0}".format(date)))
             user = self.__get_user(uid)
-            if int(user['result']['krbloginfailedcount']) > 0:
+            if int(user['result']['krbloginfailedcount'][0]) > 0:
                 api.Command.user_mod(uid=unicode(uid), setattr=unicode("krbloginfailedcount=0"))
         except Exception as e:
             raise SetPasswordFailed("Cannot update your password. {0}".format(e))
