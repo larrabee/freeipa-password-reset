@@ -6,7 +6,7 @@
 3. The service has protection against brute force attacks
 4. The service is dedicated. It does not change the scheme or system files of FreeIPA. No problems with upgrade of FreeIPA
 5. The password reset page stylized as FreeIPA pages
-6. SMS with tokens is sent through the Amazon SNS service. 
+6. SMS with tokens is sent through the Amazon SNS service.
 7. Tested with CentOS 7, python 2.7 and FreeIPA 4.4/4.5
 8. This instruction assumes that the service will be installed on the FreeIPA server.
 9. I recommend that you protect the service using a firewall and allow access only through the internal network
@@ -80,7 +80,7 @@ systemctl enable --now redis
 SECRET_KEY = "Your CSRF protection key. It must be long random string"
 LDAP_USER = "LDAP user. Default is ldap-passwd-reset"
 KEYTAB_PATH = "Path to ldap-passwd-reset keytab. Default is ../ldap-passwd-reset.keytab"
-PROVIDERS = {...} # Configuration of 2FA providers like Amazon SNS (SMS) or Email provider. 
+PROVIDERS = {...} # Configuration of 2FA providers like Amazon SNS (SMS), Email provider, Slack
 
 ```
 9. Install systemd unit and start the app:
