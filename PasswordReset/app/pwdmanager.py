@@ -8,6 +8,10 @@ import subprocess
 from random import SystemRandom
 from datetime import datetime, timedelta
 
+import sys
+if sys.version_info.major == 3:
+    unicode = str
+
 class TooMuchRetries(Exception):
     pass
 
