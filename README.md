@@ -46,11 +46,11 @@ chmod 750 $(ipa -n user-show "ldap-passwd-reset" --raw |grep 'homedirectory' |aw
 
 RHEL/CentOS 7
 ```
-yum install -y python-virtualenv python-pip python-ipaclient git
+yum install -y python-virtualenv python-pip python-ipaclient git-core
 ```
 RHEL/CentOS 8
 ```
-dnf install -y python3-virtualenv python3-pip python3-ipaclient git
+dnf install -y python3-virtualenv python3-pip python3-ipaclient git-core
 ```
 2. Clone repository to directory. (default is `/opt/data/IPAPasswordReset/`, but you can change it.):
 ```
