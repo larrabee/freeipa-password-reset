@@ -135,7 +135,7 @@ class PasswdManager():
 
 def get_providers():
     providers = []
-    for key, value in settings.PROVIDERS.iteritems():
+    for key, value in settings.PROVIDERS.items():
         if ('enabled' in value) and (value['enabled']):
             providers.append({"id": key, "display_name": value['display_name']})
     return providers
