@@ -42,18 +42,34 @@ chmod 750 $(ipa -n user-show "ldap-passwd-reset" --raw |grep 'homedirectory' |aw
 
 
 ## Install App
-1. Install system dependencies with yum:
+1. Install system dependencies:
+
+RHEL/CentOS 7
 ```
 yum install -y python-virtualenv python-pip python-ipaclient git
+```
+RHEL/CentOS 8
+```
+dnf install -y python3-virtualenv python3-pip python3-ipaclient git
 ```
 2. Clone repository to directory. (default is `/opt/data/IPAPasswordReset/`, but you can change it.):
 ```
 git clone https://github.com/larrabee/freeipa-password-reset.git /opt/data/IPAPasswordReset/
 ```
 3. Create virtual env:
+
+RHEL/CentOS 8
+
 ```
 cd /opt/data/IPAPasswordReset/
 virtualenv --system-site-packages ./virtualenv
+. ./virtualenv/bin/activate
+pip install -r requirements.txt
+```
+RHEL/CentOS 8
+```
+cd /opt/data/IPAPasswordReset/
+virtualenv-3 --system-site-packages ./virtualenv
 . ./virtualenv/bin/activate
 pip install -r requirements.txt
 ```
