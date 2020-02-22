@@ -58,7 +58,7 @@ git clone https://github.com/larrabee/freeipa-password-reset.git /opt/data/IPAPa
 ```
 3. Create virtual env:
 
-RHEL/CentOS 8
+RHEL/CentOS 7
 
 ```
 cd /opt/data/IPAPasswordReset/
