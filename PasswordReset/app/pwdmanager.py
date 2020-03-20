@@ -66,8 +66,6 @@ class PasswdManager():
             if password_exp_days > 0:
                 date = (datetime.now() + timedelta(days=password_exp_days)).strftime("%Y%m%d%H%M%SZ")
                 api.Command.user_mod(uid=unicode(uid), setattr=unicode("krbPasswordExpiration={0}".format(date)))
-            else:
-                api.Command.user_mod(uid=unicode(uid), setattr=unicode("krbPasswordExpiration=0"))
             user = self.__get_user(uid)
             if if 'krbloginfailedcount' in user['result'] and int(user['result']['krbloginfailedcount'][0]) > 0:
                 api.Command.user_mod(uid=unicode(uid), setattr=unicode("krbloginfailedcount=0"))
