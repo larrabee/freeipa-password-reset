@@ -100,16 +100,18 @@ class PasswdManager():
     def __validate_token(self, uid, token):
         if (self.redis.get("retry::validate::{0}".format(uid)) is not None) and (int(self.redis.get("retry::validate::{0}".format(uid))) >= settings.LIMIT_MAX_VALIDATE_RETRY):
             raise TooMuchRetries("Too many retries. Try later.")
-        self.redis.incr("retry::validate::{0}".format(uid))
-        self.redis.expire("retry::validate::{0}".format(uid), settings.TOKEN_LIFETIME)
         server_token = self.redis.get("token::{0}".format(uid))
         if (server_token is not None) and (int(token) == int(server_token)):
             return True
         else:
+            self.redis.incr("retry::validate::{0}".format(uid))
+            self.redis.expire("retry::validate::{0}".format(uid), settings.TOKEN_LIFETIME)
             raise InvalidToken("You entered an incorrect code")
     
     def __invalidate_token(self, uid):
         self.redis.delete("token::{0}".format(uid))
+        self.redis.delete("retry::send::{0}".format(uid))
+        self.redis.delete("retry::validate::{0}".format(uid))
 
     def first_phase(self, uid, provider_id):
         user = self.__get_user(uid)

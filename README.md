@@ -32,6 +32,8 @@ ipa role-add "Self Password Reset"
 ipa role-add-member "Self Password Reset" --users="ldap-passwd-reset"
 ipa role-add-privilege "Self Password Reset" --privileges="Modify Users and Reset passwords"
 ipa role-add-privilege "Self Password Reset" --privileges="Password Policy Readers"
+ipa role-add-privilege "Self Password Reset" --privileges="Kerberos Ticket Policy Readers"
+ipa permission-mod "System: Change User password" --includedattrs="krbloginfailedcount"
 ```
 3. Create user home dir
 ```
