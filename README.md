@@ -98,7 +98,7 @@ systemctl enable --now redis
 SECRET_KEY = "Your CSRF protection key. It must be long random string"
 LDAP_USER = "LDAP user. Default is ldap-passwd-reset"
 KEYTAB_PATH = "Path to ldap-passwd-reset keytab. Default is ../ldap-passwd-reset.keytab"
-PROVIDERS = {...} # Configuration of 2FA providers like Amazon SNS (SMS), Email provider, Slack
+PROVIDERS = {...} # Configuration of 2FA providers like Amazon SNS (SMS), Email, Slack, Signal
 
 ```
 9. Install systemd unit and start the app:

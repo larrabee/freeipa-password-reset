@@ -171,6 +171,17 @@ PROVIDERS = {
             "smtp_server_tls": True,
         },
     },
+    "signal-1": {
+        "class": app.providers.Signal,
+        "enabled": False,
+        "display_name": "Signal",
+        "options": {
+            "ldap_attribute_name": "telephonenumber",
+            # In template {0} will replaced with token
+            "msg_template": "Your reset password token: {0} \nDo not tell anyone this code.",
+            "sender_number": "+447700900123",
+        }
+    },
     "slack-1": {
         "class": app.providers.Slack,
         "enabled": False,
