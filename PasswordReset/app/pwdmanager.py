@@ -8,6 +8,10 @@ import subprocess
 from random import SystemRandom
 from datetime import datetime, timedelta
 
+import sys
+if sys.version_info.major == 3:
+    unicode = str
+
 class TooMuchRetries(Exception):
     pass
 
@@ -53,14 +57,18 @@ class PasswdManager():
         process = subprocess.Popen(['/usr/bin/kinit', '-k', '-t', str(settings.KEYTAB_PATH), str(settings.LDAP_USER), ], stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
         process.communicate()
         if process.returncode != 0:
-            raise  KerberosInitFailed("Cannot retrieve kerberos tiket.")
+            raise  KerberosInitFailed("Cannot retrieve kerberos ticket.")
     
     def __set_password(self, uid, password):
         try:
-            password_exp_days = int(api.Command.pwpolicy_show()['result']['krbmaxpwdlife'][0])
-            date = (datetime.now() + timedelta(days=password_exp_days)).strftime("%Y%m%d%H%M%SZ")
             api.Command.user_mod(uid=unicode(uid), userpassword=unicode(password))
-            api.Command.user_mod(uid=unicode(uid), setattr=unicode("krbPasswordExpiration={0}".format(date)))
+            password_exp_days = int(api.Command.pwpolicy_show()['result']['krbmaxpwdlife'][0])
+            if password_exp_days > 0:
+                date = (datetime.now() + timedelta(days=password_exp_days)).strftime("%Y%m%d%H%M%SZ")
+                api.Command.user_mod(uid=unicode(uid), setattr=unicode("krbPasswordExpiration={0}".format(date)))
+            user = self.__get_user(uid)
+            if 'krbloginfailedcount' in user['result'] and int(user['result']['krbloginfailedcount'][0]) > 0:
+                api.Command.user_mod(uid=unicode(uid), setattr=unicode("krbloginfailedcount=0"))
         except Exception as e:
             raise SetPasswordFailed("Cannot update your password. {0}".format(e))
                     
@@ -81,7 +89,7 @@ class PasswdManager():
         
     def __set_token(self, uid):
         if (self.redis.get("retry::send::{0}".format(uid)) is not None) and (int(self.redis.get("retry::send::{0}".format(uid))) >= settings.LIMIT_MAX_SEND):
-            raise TooMuchRetries("Too much retries. Try later.")
+            raise TooMuchRetries("Too many retries. Try later.")
         self.redis.incr("retry::send::{0}".format(uid))
         self.redis.expire("retry::send::{0}".format(uid), settings.LIMIT_TIME)
         token = self.__gen_secure_token(settings.TOKEN_LEN)
@@ -91,17 +99,19 @@ class PasswdManager():
     
     def __validate_token(self, uid, token):
         if (self.redis.get("retry::validate::{0}".format(uid)) is not None) and (int(self.redis.get("retry::validate::{0}".format(uid))) >= settings.LIMIT_MAX_VALIDATE_RETRY):
-            raise TooMuchRetries("Too much retries. Try later.")
-        self.redis.incr("retry::validate::{0}".format(uid))
-        self.redis.expire("retry::validate::{0}".format(uid), settings.TOKEN_LIFETIME)
+            raise TooMuchRetries("Too many retries. Try later.")
         server_token = self.redis.get("token::{0}".format(uid))
         if (server_token is not None) and (int(token) == int(server_token)):
             return True
         else:
+            self.redis.incr("retry::validate::{0}".format(uid))
+            self.redis.expire("retry::validate::{0}".format(uid), settings.TOKEN_LIFETIME)
             raise InvalidToken("You entered an incorrect code")
     
     def __invalidate_token(self, uid):
         self.redis.delete("token::{0}".format(uid))
+        self.redis.delete("retry::send::{0}".format(uid))
+        self.redis.delete("retry::validate::{0}".format(uid))
 
     def first_phase(self, uid, provider_id):
         user = self.__get_user(uid)
@@ -128,7 +138,7 @@ class PasswdManager():
 
 def get_providers():
     providers = []
-    for key, value in settings.PROVIDERS.iteritems():
+    for key, value in settings.PROVIDERS.items():
         if ('enabled' in value) and (value['enabled']):
             providers.append({"id": key, "display_name": value['display_name']})
     return providers

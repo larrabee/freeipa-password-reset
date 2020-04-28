@@ -6,15 +6,15 @@
 3. The service has protection against brute force attacks
 4. The service is dedicated. It does not change the scheme or system files of FreeIPA. No problems with upgrade of FreeIPA
 5. The password reset page stylized as FreeIPA pages
-6. SMS with tokens is sent through the Amazon SNS service. 
+6. SMS with tokens is sent through the Amazon SNS service.
 7. Tested with CentOS 7, python 2.7 and FreeIPA 4.4/4.5
 8. This instruction assumes that the service will be installed on the FreeIPA server.
 9. I recommend that you protect the service using a firewall and allow access only through the internal network
 10. This app is very small. You can easily audit the code.
-11. You can easely write your own 2FA providers.
+11. You can easily write your own 2FA providers.
 
 
-## Instal steps
+## Install steps
 
 1. Configure FreeIPA
 2. Install & Configure App
@@ -32,6 +32,8 @@ ipa role-add "Self Password Reset"
 ipa role-add-member "Self Password Reset" --users="ldap-passwd-reset"
 ipa role-add-privilege "Self Password Reset" --privileges="Modify Users and Reset passwords"
 ipa role-add-privilege "Self Password Reset" --privileges="Password Policy Readers"
+ipa role-add-privilege "Self Password Reset" --privileges="Kerberos Ticket Policy Readers"
+ipa permission-mod "System: Change User password" --includedattrs="krbloginfailedcount"
 ```
 3. Create user home dir
 ```
@@ -42,18 +44,34 @@ chmod 750 $(ipa -n user-show "ldap-passwd-reset" --raw |grep 'homedirectory' |aw
 
 
 ## Install App
-1. Install system dependencyes with yum:
+1. Install system dependencies:
+
+RHEL/CentOS 7
 ```
-yum install -y python-virtualenv python-pip python-ipaclient git
+yum install -y python-virtualenv python-pip python-ipaclient git-core
+```
+RHEL/CentOS 8
+```
+dnf install -y python3-virtualenv python3-pip python3-ipaclient git-core
 ```
 2. Clone repository to directory. (default is `/opt/data/IPAPasswordReset/`, but you can change it.):
 ```
 git clone https://github.com/larrabee/freeipa-password-reset.git /opt/data/IPAPasswordReset/
 ```
 3. Create virtual env:
+
+RHEL/CentOS 7
+
 ```
 cd /opt/data/IPAPasswordReset/
 virtualenv --system-site-packages ./virtualenv
+. ./virtualenv/bin/activate
+pip install -r requirements.txt
+```
+RHEL/CentOS 8
+```
+cd /opt/data/IPAPasswordReset/
+virtualenv-3 --system-site-packages ./virtualenv
 . ./virtualenv/bin/activate
 pip install -r requirements.txt
 ```
@@ -80,7 +98,7 @@ systemctl enable --now redis
 SECRET_KEY = "Your CSRF protection key. It must be long random string"
 LDAP_USER = "LDAP user. Default is ldap-passwd-reset"
 KEYTAB_PATH = "Path to ldap-passwd-reset keytab. Default is ../ldap-passwd-reset.keytab"
-PROVIDERS = {...} # Configuration of 2FA providers like Amazon SNS (SMS) or Email provider. 
+PROVIDERS = {...} # Configuration of 2FA providers like Amazon SNS (SMS), Email provider, Slack
 
 ```
 9. Install systemd unit and start the app:
@@ -91,7 +109,7 @@ systemctl enable --now ldap-passwd-reset.service
 ```
 
 ## Enjoy!
-* Open [https:/ipa.example.com/reset/](https://ipa.example.com/reset/) (replace ipa.example.com with your FreeIPA hosname)
+* Open [https:/ipa.example.com/reset/](https://ipa.example.com/reset/) (replace ipa.example.com with your FreeIPA hostname)
 * Enter the user uid and click 'Reset Password'
 * On next page enter the security code from SMS and enter new password twice and click 'Reset'
 * Try to login to FreeIPA with new password

@@ -7,7 +7,7 @@ from django.views.generic import View
 from django.template import loader
 from django.utils.safestring import mark_safe
 
-from pwdmanager import *
+from .pwdmanager import *
 from django.conf import settings
 
 def index(request):

@@ -7,6 +7,8 @@ from email.mime.text import MIMEText
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 
+import json
+import requests
 
 class AmazonSNSFailed(Exception):
     pass
@@ -24,6 +26,12 @@ class SignalFailed(Exception):
     pass
 
 class SignalValidateFailed(Exception):
+    pass
+
+class SlackValidateFailed(Exception):
+    pass
+
+class SlackSendFailed(Exception):
     pass
 
 class AmazonSNS():
@@ -53,7 +61,7 @@ class AmazonSNS():
     def send_token(self, user, token):
         phones = user['result'][self.ldap_attribute_name]
         phones = self.__filter_phones(phones)
-        
+
         try:
             sns = boto3.client('sns', aws_access_key_id=self.aws_key, aws_secret_access_key=self.aws_secret, region_name=self.aws_region)
             for phone in phones:
@@ -110,9 +118,8 @@ class Email():
                 s.login(self.smtp_user, self.smtp_pass)
             s.sendmail(msg['From'], recipients, msg.as_string())
             s.quit()
-        except Exception as e:
-            raise EmailSendFailed(e.message)
-
+        except Exception:
+            raise EmailSendFailed("Cannot send Email")
 
 class Signal():
     def __init__(self, options):
@@ -147,3 +154,32 @@ class Signal():
         except Exception as e:
             raise SignalFailed(e.message)
 
+class Slack():
+    def __init__(self, options):
+        self.msg_template = options['msg_template']
+        self.slack_hook = options['slack_hook']
+        self.slack_username = options['slack_username']
+        self.slack_icon_emoji = options['slack_icon_emoji']
+
+    def __filter_login(self, uid):
+        if len(uid) == 0:
+            raise SlackValidateFailed("User login not found")
+        return uid
+
+    def send_token(self, user, token):
+        recipient = user['result']['uid'][0]
+        recipient = self.__filter_login(recipient)
+        msg = self.msg_template.format(token)
+        self.slack_payload = {'channel': '@%s' % recipient, 'username': self.slack_username, 'text': msg, 'icon_emoji': self.slack_icon_emoji, 'mrkdwn': 'true' }
+
+        response = requests.post(
+            self.slack_hook, data=json.dumps(self.slack_payload),
+            headers={'Content-Type': 'application/json'}
+        )
+        print (response.status_code)
+
+        if response.status_code != 200:
+            raise SlackSendFailed(
+                'Request to slack returned an error %s, the response is:\n%s'
+                % (response.status_code, response.text)
+            )

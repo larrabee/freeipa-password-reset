@@ -141,15 +141,15 @@ LIMIT_TIME = 86400
 
 
 PROVIDERS = {
-    "aws-sns-1": {   
+    "aws-sns-1": {
         "class": app.providers.AmazonSNS,
         "enabled": False,
         "display_name": "SMS",
         "options": {
             "ldap_attribute_name": "telephonenumber",
             # In template {0} will replaced with token
-            "msg_template": "Your reset password token: {0} \nDo not tell anyone this code.", 
-            "aws_key": "AWS key", 
+            "msg_template": "Your reset password token: {0} \nDo not tell anyone this code.",
+            "aws_key": "AWS key",
             "aws_secret": "AWS secret",
             "aws_region": "eu-west-1",
             "sender_id": "LDAP",
@@ -164,7 +164,7 @@ PROVIDERS = {
             "msg_template": "Your reset password token: {0} \nDo not tell anyone this code.",
             "msg_subject": "Your LDAP password reset code",
             "smtp_from": None, #With None its copy value from smtp_user
-            "smtp_user": "", 
+            "smtp_user": "",
             "smtp_pass": "",
             "smtp_server_addr": "",
             "smtp_server_port": 25,
@@ -173,13 +173,26 @@ PROVIDERS = {
     },
     "signal-1": {
         "class": app.providers.Signal,
-        "enabled": True,
+        "enabled": False,
         "display_name": "Signal",
         "options": {
             "ldap_attribute_name": "telephonenumber",
             # In template {0} will replaced with token
             "msg_template": "Your reset password token: {0} \nDo not tell anyone this code.",
             "sender_number": "+447700900123",
+        }
+    },
+    "slack-1": {
+        "class": app.providers.Slack,
+        "enabled": False,
+        "display_name": "Slack",
+        "options": {
+            # In template {0} will replaced with token
+            "msg_template": "Your reset password token: {0} \nDo not tell anyone this code.",
+            # Set the webhook_url to the one provided by Slack when you create the webhook at https://my.slack.com/services/new/incoming-webhook/
+            "slack_hook" : "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX",
+            "slack_username" : "announce",
+            "slack_icon_emoji" : ":lock:"
         },
     },
 }
