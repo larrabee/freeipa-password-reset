@@ -118,8 +118,8 @@ class Email():
                 s.login(self.smtp_user, self.smtp_pass)
             s.sendmail(msg['From'], recipients, msg.as_string())
             s.quit()
-        except Exception:
-            raise EmailSendFailed("Cannot send Email")
+        except Exception as e:
+            raise EmailSendFailed("Cannot send Email, error: {0}".format(str(e)))
 
 class Signal():
     def __init__(self, options):
