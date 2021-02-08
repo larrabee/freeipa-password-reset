@@ -6,7 +6,7 @@ django==1.11.29
 dnspython==1.15.0
 docutils==0.13.1
 futures==3.1.1
-httplib2==0.18.0
+httplib2==0.19.0
 jmespath==0.9.3
 packaging==16.8
 python-dateutil==2.6.0
