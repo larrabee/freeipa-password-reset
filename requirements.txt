@@ -12,7 +12,7 @@ packaging==16.8
 python-dateutil==2.6.0
 pytz==2017.2
 redis==2.10.5
-rsa==3.4.2
+rsa==4.7
 s3transfer==0.1.10
 six==1.10.0
 uritemplate==3.0.0
