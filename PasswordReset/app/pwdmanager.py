@@ -44,6 +44,8 @@ class PasswdManager():
             api.finalize()
         api.Backend.rpcclient.connect()
         self.redis = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=settings.REDIS_DB, password=settings.REDIS_PASSWORD)
+        self.current_host = os.uname()[1]
+        self._session = requests.Session()
     
     @staticmethod
     def __kerberos_has_ticket():
@@ -65,9 +67,7 @@ class PasswdManager():
         """
         private function, use change_password instead
         """
-        current_host = os.uname()[1]
-        session = requests.Session()
-        password_url = 'https://{0}/ipa/session/change_password'.format(current_host)
+        password_url = 'https://{0}/ipa/session/change_password'.format(self.current_host)
         headers = {
             'Content-Type': 'application/x-www-form-urlencoded',
             'Accept': 'text/plain',
@@ -80,7 +80,7 @@ class PasswdManager():
         }
         if otp:
             data['otp'] = otp
-        response = session.post(
+        response = self._session.post(
             password_url, headers=headers, data=data, verify=True
         )
 
