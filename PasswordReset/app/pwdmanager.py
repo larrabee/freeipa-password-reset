@@ -5,10 +5,12 @@ from ipalib import api, errors as ipaerrors
 import redis
 import re
 import subprocess
+import os
+import requests
 from random import SystemRandom
 from datetime import datetime, timedelta
-
 import sys
+from python_freeipa.exceptions import *
 if sys.version_info.major == 3:
     unicode = str
 
@@ -58,19 +60,57 @@ class PasswdManager():
         process.communicate()
         if process.returncode != 0:
             raise  KerberosInitFailed("Cannot retrieve kerberos ticket.")
-    
-    def __set_password(self, uid, password):
-        try:
-            api.Command.user_mod(uid=unicode(uid), userpassword=unicode(password))
-            password_exp_days = int(api.Command.pwpolicy_show()['result']['krbmaxpwdlife'][0])
-            if password_exp_days > 0:
-                date = (datetime.now() + timedelta(days=password_exp_days)).strftime("%Y%m%d%H%M%SZ")
-                api.Command.user_mod(uid=unicode(uid), setattr=unicode("krbPasswordExpiration={0}".format(date)))
-            user = self.__get_user(uid)
-            if 'krbloginfailedcount' in user['result'] and int(user['result']['krbloginfailedcount'][0]) > 0:
-                api.Command.user_mod(uid=unicode(uid), setattr=unicode("krbloginfailedcount=0"))
-        except Exception as e:
-            raise SetPasswordFailed("Cannot update your password. {0}".format(e))
+######## Change Password using the url ###########
+    def __change_password(self, uid, old_password, new_password, otp=None):
+        """
+        private function, use change_password instead
+        """
+        current_host = os.uname()[1]
+        session = requests.Session()
+        password_url = 'https://{0}/ipa/session/change_password'.format(current_host)
+        headers = {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Accept': 'text/plain',
+        }
+
+        data = {
+            'user': uid,
+            'new_password': new_password,
+            'old_password': old_password,
+        }
+        if otp:
+            data['otp'] = otp
+        response = session.post(
+            password_url, headers=headers, data=data, verify=True
+        )
+
+        if not response.ok:
+            raise FreeIPAError(message=response.text, code=response.status_code)
+
+        pwchange_result = response.headers.get('X-IPA-Pwchange-Result', None)
+        if pwchange_result != 'ok':
+            if pwchange_result == 'invalid-password':
+                raise SetPasswordFailed("Cannot update your password. You have entered {0}".format(pwchange_result))
+            elif pwchange_result == 'policy-error':
+                policy_error = response.headers.get('X-IPA-Pwchange-Policy-Error', None)
+                raise SetPasswordFailed("Cannot update your password. {0}".format(policy_error))
+            else:
+                raise FreeIPAError(message=response.text, code=response.status_code)
+        return response
+
+#######################################################   
+#    def __set_password(self, uid, password):
+#        try:
+#            api.Command.user_mod(uid=unicode(uid), userpassword=unicode(password))
+#            password_exp_days = int(api.Command.pwpolicy_show()['result']['krbmaxpwdlife'][0])
+#            if password_exp_days > 0:
+#                date = (datetime.now() + timedelta(days=password_exp_days)).strftime("%Y%m%d%H%M%SZ")
+#                api.Command.user_mod(uid=unicode(uid), setattr=unicode("krbPasswordExpiration={0}".format(date)))
+#            user = self.__get_user(uid)
+#            if 'krbloginfailedcount' in user['result'] and int(user['result']['krbloginfailedcount'][0]) > 0:
+#                api.Command.user_mod(uid=unicode(uid), setattr=unicode("krbloginfailedcount=0"))
+#        except Exception as e:
+#            raise SetPasswordFailed("Cannot update your password. {0}".format(e))
                     
     def __get_user(self, uid):
         try:
@@ -130,11 +170,11 @@ class PasswdManager():
             self.__invalidate_token(uid)
             raise e
         
-    def second_phase(self, uid, token, new_password):
+    def second_phase(self, uid, token, old_password, new_password):
         self.__validate_token(uid, token)
-        self.__set_password(uid, new_password)
+#        self.__set_password(uid, new_password)
+        self.__change_password(uid, old_password, new_password)
         self.__invalidate_token(uid)
-
 
 def get_providers():
     providers = []
@@ -142,3 +182,4 @@ def get_providers():
         if ('enabled' in value) and (value['enabled']):
             providers.append({"id": key, "display_name": value['display_name']})
     return providers
+
