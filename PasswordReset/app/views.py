@@ -44,7 +44,7 @@ class SetPassword(View):
     
     def post(self, request, *args, **kwargs):
         try:
-            PasswdManager().second_phase(request.POST['uid'], request.POST['token'], request.POST['old_password'], request.POST['password1'])
+            PasswdManager().second_phase(request.POST['uid'], request.POST['token'], request.POST['password1'])
         except Exception as e:
             template = loader.get_template('setpassword.html')
             context = {

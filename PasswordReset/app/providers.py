@@ -63,7 +63,7 @@ class AmazonSNS():
         phones = self.__filter_phones(phones)
 
         try:
-            sns = boto3.client('sns', aws_access_key_id=self.aws_key, aws_secret_access_key=self.aws_secret, region_name=self.aws_region)
+            sns = boto3.client('sns', region_name=self.aws_region)
             for phone in phones:
                 sns.publish(PhoneNumber=phone, Message=self.msg_template.format(token), MessageAttributes={'AWS.SNS.SMS.SenderID': {'DataType': 'String', 'StringValue': self.sender_id}})
         except Exception:
