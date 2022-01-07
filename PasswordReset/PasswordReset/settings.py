@@ -163,10 +163,10 @@ PROVIDERS = {
             # In template {0} will replaced with token
             "msg_template": "Your reset password token: {0} \nDo not tell anyone this code.",
             "msg_subject": "Your LDAP password reset code",
-            "smtp_from": os.environ['SMTP_FROM'], #With None its copy value from smtp_user
-            "smtp_user": os.environ['SMTP_USER'],
-            "smtp_pass": os.environ['SMTP_PASS'],
-            "smtp_server_addr": os.environ['SMTP_SERVER_ADDR'],
+            "smtp_from": os.environ.get('SMTP_FROM'), 
+            "smtp_user": os.environ.get('SMTP_USER'),
+            "smtp_pass": os.environ.get('SMTP_PASS'),
+            "smtp_server_addr": os.environ.get('SMTP_SERVER_ADDR'),
             "smtp_server_port": 587,
             "smtp_server_tls": True,
         },
