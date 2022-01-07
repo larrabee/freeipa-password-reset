@@ -17,6 +17,5 @@ s3transfer==0.1.10
 six==1.10.0
 uritemplate==3.0.0
 Jinja2==2.10.1
-django-environ==0.4.5
 #python-freeipa==1.0.6
 password-strength==0.0.3.post2

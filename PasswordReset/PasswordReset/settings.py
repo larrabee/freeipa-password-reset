@@ -13,10 +13,6 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 import app.providers
-import environ
-# Initialise environment variables
-env = environ.Env()
-environ.Env.read_env()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -167,10 +163,10 @@ PROVIDERS = {
             # In template {0} will replaced with token
             "msg_template": "Your reset password token: {0} \nDo not tell anyone this code.",
             "msg_subject": "Your LDAP password reset code",
-            "smtp_from": env('SMTP_FROM'), #With None its copy value from smtp_user
-            "smtp_user": env('SMTP_USER'),
-            "smtp_pass": env('SMTP_PASS'),
-            "smtp_server_addr": env('SMTP_SERVER_ADDR'),
+            "smtp_from": os.environ['SMTP_FROM'], #With None its copy value from smtp_user
+            "smtp_user": os.environ['SMTP_USER'],
+            "smtp_pass": os.environ['SMTP_PASS'],
+            "smtp_server_addr": os.environ['SMTP_SERVER_ADDR'],
             "smtp_server_port": 587,
             "smtp_server_tls": True,
         },
