@@ -122,7 +122,7 @@ STATIC_URL = '/static/'
 ### CUSTOM settings
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'm9fJrqbppLv9csrsmfLt'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 REDIS_HOST = 'localhost'
 REDIS_PORT = 6379
@@ -167,7 +167,7 @@ PROVIDERS = {
             "smtp_user": os.environ.get('SMTP_USER'),
             "smtp_pass": os.environ.get('SMTP_PASS'),
             "smtp_server_addr": os.environ.get('SMTP_SERVER_ADDR'),
-            "smtp_server_port": 587,
+            "smtp_server_port": int(os.environ.get('SMTP_SERVER_PORT')),
             "smtp_server_tls": True,
         },
     },
