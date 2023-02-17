@@ -3,7 +3,6 @@ from django.conf import settings
 
 from ipalib import api, errors as ipaerrors
 import redis
-import re
 import subprocess
 from random import SystemRandom
 from datetime import datetime, timedelta
