@@ -174,7 +174,7 @@ class Slack():
 
         response = requests.post(
             self.slack_hook, data=json.dumps(self.slack_payload),
-            headers={'Content-Type': 'application/json'}
+            headers={'Content-Type': 'application/json'}, timeout=30
         )
         print (response.status_code)
 
